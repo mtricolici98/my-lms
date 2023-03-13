@@ -10,34 +10,34 @@ use surrealdb::{
 };
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Task {
+pub struct User {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
-    pub title: String,
-    pub completed: bool,
+    pub username: String,
+    pub email: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_at: Option<DateTime<Utc>>,
 }
 
-impl From<Task> for Value {
-    fn from(val: Task) -> Self {
+impl From<User> for Value {
+    fn from(val: User) -> Self {
         match val.id {
             Some(v) => map![
                     "id".into() => v.into(),
-                    "title".into() => val.title.into(),
-                    "completed".into() => val.completed.into(),
+                    "username".into() => val.username.into(),
+                    "email".into() => val.email.into(),
             ]
             .into(),
             None => map![
-                "title".into() => val.title.into(),
-                "completed".into() => val.completed.into()
+                "username".into() => val.username.into(),
+                "email".into() => val.email.into()
             ]
             .into(),
         }
     }
 }
 
-impl Creatable for Task {}
+impl Creatable for User {}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RowId {
@@ -52,12 +52,12 @@ pub struct AffectedRows {
 pub trait Creatable: Into<Value> {}
 
 #[derive(Clone)]
-pub struct DB {
+pub struct UserDB {
     pub ds: Arc<Datastore>,
     pub sesh: Session,
 }
 
-impl DB {
+impl UserDB {
     pub async fn execute(
         &self,
         query: &str,
@@ -67,9 +67,12 @@ impl DB {
         Ok(res)
     }
 
-    pub async fn add_task(&self, title: String) -> Result<Object, crate::error::Error> {
-        let sql = "CREATE tasks SET title = $title, completed = false, created_at = time::now()";
-        let vars: BTreeMap<String, Value> = map!["title".into() => Value::Strand(title.into())];
+    pub async fn add_user(&self, username: String, email: String) -> Result<Object, crate::error::Error> {
+        let sql = "CREATE users SET username = $username, email = $email, created_at = time::now()";
+        let vars: BTreeMap<String, Value> = map![
+            "username".into() => Value::Strand(username.into()),
+            "email".into() => Value::Strand(email.into()),
+            ];
         let res = self.execute(sql, Some(vars)).await?;
 
         let first_res = res.into_iter().next().expect("Did not get a response");
@@ -77,7 +80,7 @@ impl DB {
         W(first_res.result?.first()).try_into()
     }
 
-    pub async fn get_task(&self, id: String) -> Result<Object, crate::error::Error> {
+    pub async fn get_user(&self, id: String) -> Result<Object, crate::error::Error> {
         let sql = "SELECT * FROM $th";
         let tid = format!("{}", id);
         let vars: BTreeMap<String, Value> = map!["th".into() => thing(&tid)?.into()];
@@ -89,7 +92,7 @@ impl DB {
     }
 
     pub async fn get_all_tasks(&self) -> Result<Vec<Object>, crate::error::Error> {
-        let sql = "SELECT * FROM tasks ORDER BY created_at ASC;";
+        let sql = "SELECT * FROM users ORDER BY created_at ASC;";
 
         let res = self.execute(sql, None).await?;
 
@@ -100,16 +103,7 @@ impl DB {
         array.into_iter().map(|value| W(value).try_into()).collect()
     }
 
-    pub async fn toggle_task(&self, id: String) -> Result<AffectedRows, crate::error::Error> {
-        let sql = "UPDATE $th SET completed = function() { return !this.completed; }";
-        let tid = format!("{}", id);
-        let vars: BTreeMap<String, Value> = map!["th".into() => thing(&tid)?.into()];
-        let _ = self.execute(sql, Some(vars)).await?;
-
-        Ok(AffectedRows { rows_affected: 1 })
-    }
-
-    pub async fn delete_task(&self, id: String) -> Result<AffectedRows, crate::error::Error> {
+    pub async fn delete_user(&self, id: String) -> Result<AffectedRows, crate::error::Error> {
         let sql = "Delete $th";
         let tid = format!("{}", id);
         let vars: BTreeMap<String, Value> = map!["th".into() => thing(&tid)?.into()];
