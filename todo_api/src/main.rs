@@ -2,7 +2,7 @@
 extern crate rocket;
 
 use db::auth::UserDB;
-use api::auth::{delete_user, login_user, regiser_user};
+use api::auth::{delete_user, login_user, regiser_user, get_me, logout_user};
 
 use std::{sync::Arc};
 use surrealdb::{Datastore, Session};
@@ -21,13 +21,13 @@ async fn rocket() -> _ {
     let ds = Arc::new(Datastore::new("memory").await.unwrap());
     let sesh = Session::for_db("my_ns", "my_db");
 
-    let userDb = UserDB { ds, sesh };
+    let user_db = UserDB { ds, sesh };
 
     rocket::build()
         .mount(
             "/auth",
-            routes![regiser_user, login_user, delete_user],/*  */
-        )
+            routes![regiser_user, login_user, delete_user, logout_user, get_me],/*  */
+         )
         .attach(CORS)
-        .manage(userDb)
+        .manage(user_db)
 }

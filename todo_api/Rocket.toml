@@ -1,3 +1,5 @@
 ## defaults for _all_ profiles
 [default]
 port = 8080
+secret_key = "ta6qvraQlCi+d2DQa7l1RjkZJj0mp6vrYvRTxpYRtKU="
+log_level = "debug"
