@@ -1,6 +1,6 @@
 use rocket::{request::{FromRequest, Outcome}, Request, http::Status, State};
 
-use crate::db::{auth::{User, UserDB}, self};
+use crate::db::{auth::{User}, self};
 #[derive(Debug)]
 pub enum LoginError {
     InvalidData,

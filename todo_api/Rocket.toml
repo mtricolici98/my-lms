@@ -3,3 +3,6 @@
 port = 8080
 secret_key = "ta6qvraQlCi+d2DQa7l1RjkZJj0mp6vrYvRTxpYRtKU="
 log_level = "debug"
+
+[global.databases]
+pg_database = { url = "postgres://mtricolici:aozhnl@localhost/my_lms" }
