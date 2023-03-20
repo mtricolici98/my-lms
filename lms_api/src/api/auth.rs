@@ -1,11 +1,12 @@
 #[macro_use]
 
 use rocket::{serde::json::Json, post, get, delete};
-use rocket::{http::{CookieJar, Cookie}, futures::TryFutureExt};
+use rocket::{http::{CookieJar, Cookie}};
 
-use std::{io::ErrorKind};
 
-use crate::{db::{conn::MyPgDatabase, auth::{InsertableUser, User, get_user_by_email}}, utils::hashing::hash_passwd};
+
+use crate::{db::{conn::MyPgDatabase, auth::{InsertableUser}}, utils::hashing::hash_passwd};
+use crate::db::auth::User;
 use crate::db::auth::add_user;
 
 use super::view_models::{RegistrationUser, LoginUser};
@@ -22,7 +23,7 @@ pub async fn regiser_user(user: Json<RegistrationUser>, db: MyPgDatabase, cookie
     };
     let user = db.run(|c| add_user(
         new_user,
-        &c
+        c
     )).await?;
     cookies.add_private(Cookie::new("user_id", user.id.to_string()));
     Ok(Json(user))
@@ -30,8 +31,8 @@ pub async fn regiser_user(user: Json<RegistrationUser>, db: MyPgDatabase, cookie
 
 #[get("/login", format= "json", data="<login_user>")]
 pub async fn login_user(login_user: Json<LoginUser>, db: MyPgDatabase, cookies: &CookieJar<'_>) -> Result<Json<User>, std::io::Error> {
-    let user = db.run(|c| get_user_by_email(login_user.email.clone())).await?;
-    Ok(Json(user))
+    // let user = db.run(|c| get_user_by_email(login_user.email.clone())).await?;
+    Ok(Json(User::default()))
     // let login_pass_hash = hash_passwd(login_user.pass_text.clone());
     // let user_pass_hash = user.password_hash.clone().unwrap();
     // if login_pass_hash == user_pass_hash {
@@ -55,17 +56,18 @@ pub async fn get_me(current_user: User) -> Result<Json<User>, std::io::Error> {
 
 
 #[delete("/delete")]
-pub async fn delete_user(db: MyPgDatabase, cookies: &CookieJar<'_>, current_user: User) -> Result<Json<AffectedRows>, std::io::Error> {
-    match current_user.id.clone() {
-        Some(id) => {
-            let affected_rows = db
-            .delete_user(id)
-            .await
-            .map_err(|_| std::io::Error::new(ErrorKind::Other, "Unable to delete task."))?;
-            Ok(Json(affected_rows))
-        },
-        None => Ok(Json(AffectedRows { rows_affected: 0 }))
-    }
+pub async fn delete_user(db: MyPgDatabase, cookies: &CookieJar<'_>, current_user: User) -> Result<Json<bool>, std::io::Error> {
+    // match current_user.id.clone() {
+    //     Some(id) => {
+    //         let affected_rows = db
+    //         .delete_user(id)
+    //         .await
+    //         .map_err(|_| std::io::Error::new(ErrorKind::Other, "Unable to delete task."))?;
+    //         Ok(Json(affected_rows))
+    //     },
+    //     None => Ok(Json(AffectedRows { rows_affected: 0 }))
+    // }
+    Ok(Json(true))
 }
 
 

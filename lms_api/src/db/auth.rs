@@ -4,10 +4,10 @@ use std::{io::ErrorKind};
 use diesel::{prelude::*};
 
 
-use chrono::{DateTime, Utc};
+use chrono::{NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use crate::schema::users;
-
+use rocket_sync_db_pools::diesel::PgConnection;
 
 
 #[derive(Debug, Serialize, Deserialize, Default, Queryable)]
@@ -16,7 +16,7 @@ pub struct User {
     pub username: String,
     pub email: String,
     pub password_hash: Option<String>, 
-    pub created_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]

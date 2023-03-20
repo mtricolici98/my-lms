@@ -355,6 +355,7 @@ checksum = "4391a22b19c916e50bec4d6140f29bdda3e3bb187223fe6e3ea0b6e4d1021c04"
 dependencies = [
  "bitflags",
  "byteorder",
+ "chrono",
  "diesel_derives 2.0.2",
  "itoa",
  "pq-sys",
@@ -852,6 +853,26 @@ name = "linux-raw-sys"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f051f77a7c8e6957c0696eac88f26b0117e54f52d3fc682ab19397a8812846a4"
+
+[[package]]
+name = "lms_api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "diesel 2.0.3",
+ "dotenvy",
+ "fern",
+ "hex",
+ "log",
+ "postgres",
+ "rocket",
+ "rocket_sync_db_pools",
+ "serde",
+ "sha3",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
 
 [[package]]
 name = "lock_api"
@@ -1722,26 +1743,6 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-
-[[package]]
-name = "todo_api"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "diesel 2.0.3",
- "dotenvy",
- "fern",
- "hex",
- "log",
- "postgres",
- "rocket",
- "rocket_sync_db_pools",
- "serde",
- "sha3",
- "thiserror",
- "tokio",
- "uuid",
-]
 
 [[package]]
 name = "tokio"

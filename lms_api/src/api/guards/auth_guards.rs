@@ -13,16 +13,16 @@ impl<'r> FromRequest<'r> for User {
     type Error = LoginError;
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let user_db = req.rocket().state::<UserDB>().unwrap();
+        // let user_db = req.rocket().state::<UserDB>().unwrap();
 
-        let user = req.cookies()
-            .get_private("user_id")
-            .and_then(|cookie| cookie.value().parse().ok())
-            .map(|id| user_db.get_user_by_id(id));
+        // let user = req.cookies()
+        //     .get_private("user_id")
+        //     .and_then(|cookie| cookie.value().parse().ok())
+        //     .map(|id| user_db.get_user_by_id(id));
 
-        match user { 
+        match Some(User::default()) { 
             Some(user) => {
-                let user_result = user.await;
+                let user_result: Result<User, std::io::Error> = Ok(user);
                 match user_result {
                     Ok(user) => Outcome::Success(user),
                     Err(err) => Outcome::Failure((Status::BadRequest, LoginError::InvalidData))
